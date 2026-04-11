@@ -9,7 +9,7 @@ import { SpinWheel } from './components/SpinWheel/SpinWheel';
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('foods');
-  const { foods, isLoading, addFood, removeFood } = useFoods();
+  const { foods, isLoading, addFood, removeFood, updateFood } = useFoods();
 
   useEffect(() => {
     try {
@@ -27,9 +27,9 @@ function App() {
   }
 
   return (
-    <Layout>
+    <Layout activeTab={activeTab}>
       {activeTab === 'foods' ? (
-        <FoodList foods={foods} onAdd={addFood} onRemove={removeFood} />
+        <FoodList foods={foods} onAdd={addFood} onRemove={removeFood} onUpdate={updateFood} />
       ) : (
         <SpinWheel foods={foods} />
       )}
