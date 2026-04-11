@@ -44,6 +44,15 @@ export const mockDb = {
     writeStorage(items);
   },
 
+  async update(id: string, name: string): Promise<FoodItem> {
+    const items = readStorage();
+    const index = items.findIndex((item) => item.id === id);
+    if (index === -1) throw new Error('Item not found');
+    items[index] = { ...items[index], name };
+    writeStorage(items);
+    return items[index];
+  },
+
   async clear(): Promise<void> {
     writeStorage([]);
   },

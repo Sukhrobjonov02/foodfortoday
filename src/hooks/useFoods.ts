@@ -23,5 +23,10 @@ export function useFoods() {
     setFoods((prev) => prev.filter((item) => item.id !== id));
   };
 
-  return { foods, isLoading, addFood, removeFood };
+  const updateFood = async (id: string, name: string) => {
+    const updated = await mockDb.update(id, name);
+    setFoods((prev) => prev.map((item) => (item.id === id ? updated : item)));
+  };
+
+  return { foods, isLoading, addFood, removeFood, updateFood };
 }
