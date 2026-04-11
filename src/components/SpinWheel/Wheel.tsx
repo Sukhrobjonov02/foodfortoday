@@ -111,7 +111,7 @@ export function Wheel({ foods, onSpinComplete, isSpinning, onSpinStart }: WheelP
               {/* Segment gradients */}
               {foods.map((_, i) => {
                 const baseColor = getSegmentColor(i);
-                const darkColor = darkenColor(baseColor, 35);
+                const darkColor = darkenColor(baseColor, 20);
                 const midAngle = (i * segmentAngle + segmentAngle / 2 - 90) * Math.PI / 180;
                 const x1 = 0.5 + 0.5 * Math.cos(midAngle);
                 const y1 = 0.5 + 0.5 * Math.sin(midAngle);

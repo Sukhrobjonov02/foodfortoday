@@ -1,7 +1,7 @@
 export const WHEEL_COLORS = [
-  '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4',
-  '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F',
-  '#BB8FCE', '#85C1E9', '#F8C471', '#82E0AA',
+  '#FF4136', '#FF851B', '#FFDC00', '#2ECC40',
+  '#0074D9', '#B10DC9', '#FF6BB5', '#01FF70',
+  '#39CCCC', '#F012BE', '#FF6F00', '#7FDBFF',
 ];
 
 export const getSegmentColor = (index: number) =>
