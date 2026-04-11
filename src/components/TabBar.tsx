@@ -15,7 +15,7 @@ const tabs = [
 
 export function TabBar({ activeTab, onTabChange }: TabBarProps) {
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-20">
+    <div className="fixed bottom-6 left-4 right-4 z-20">
       <div className={clsx(
         'flex rounded-2xl overflow-hidden',
         'bg-[var(--tg-theme-bg-color,#ffffff)]/80',

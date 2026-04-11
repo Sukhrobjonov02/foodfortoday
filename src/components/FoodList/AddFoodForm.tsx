@@ -66,7 +66,7 @@ export function AddFoodForm({ onAdd, existingNames }: AddFoodFormProps) {
         animate={{ scale: 1 }}
         whileTap={{ scale: 0.9 }}
         className={clsx(
-          'fixed bottom-24 right-5 z-25 w-14 h-14 rounded-full',
+          'fixed bottom-28 right-5 z-25 w-14 h-14 rounded-full',
           'bg-[var(--tg-theme-button-color,#6c5ce7)]',
           'text-[var(--tg-theme-button-text-color,#fff)]',
           'flex items-center justify-center',
