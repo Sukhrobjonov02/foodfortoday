@@ -19,7 +19,7 @@ export function Layout({ children, activeTab }: LayoutProps) {
 
   return (
     <div className="min-h-screen bg-[var(--tg-theme-bg-color,#f8f9fa)] text-[var(--tg-theme-text-color,#1a1a2e)] flex flex-col overflow-hidden">
-      <div className="flex-1 pb-28">
+      <div className="flex-1 pb-32">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={activeTab}

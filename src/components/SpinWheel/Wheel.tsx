@@ -85,6 +85,8 @@ export function Wheel({ foods, onSpinComplete, isSpinning, onSpinStart }: WheelP
     onSpinComplete(foods[winIndex]);
   };
 
+  const fontSize = foods.length > 10 ? 11 : foods.length > 6 ? 13 : 16;
+
   return (
     <div className="flex flex-col items-center gap-6">
       <div className="relative" style={{ filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.15))' }}>
@@ -108,7 +110,6 @@ export function Wheel({ foods, onSpinComplete, isSpinning, onSpinStart }: WheelP
         >
           <svg width={WHEEL_SIZE} height={WHEEL_SIZE} viewBox={`0 0 ${WHEEL_SIZE} ${WHEEL_SIZE}`}>
             <defs>
-              {/* Segment gradients */}
               {foods.map((_, i) => {
                 const baseColor = getSegmentColor(i);
                 const darkColor = darkenColor(baseColor, 20);
@@ -122,7 +123,6 @@ export function Wheel({ foods, onSpinComplete, isSpinning, onSpinStart }: WheelP
                   </linearGradient>
                 );
               })}
-              {/* Metallic ring gradient */}
               <linearGradient id="metal-ring" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0%" stopColor="#e8e8e8" />
                 <stop offset="25%" stopColor="#f5f5f5" />
@@ -130,7 +130,6 @@ export function Wheel({ foods, onSpinComplete, isSpinning, onSpinStart }: WheelP
                 <stop offset="75%" stopColor="#f0f0f0" />
                 <stop offset="100%" stopColor="#c8c8c8" />
               </linearGradient>
-              {/* Center hub gradient */}
               <radialGradient id="hub-outer">
                 <stop offset="0%" stopColor="#ffffff" />
                 <stop offset="100%" stopColor="#e0e0e0" />
@@ -139,38 +138,26 @@ export function Wheel({ foods, onSpinComplete, isSpinning, onSpinStart }: WheelP
                 <stop offset="0%" stopColor="var(--tg-theme-button-color, #7c6cf7)" />
                 <stop offset="100%" stopColor="var(--tg-theme-button-color, #5a4bd1)" />
               </radialGradient>
-              {/* Drop shadow filter */}
               <filter id="hub-shadow">
                 <feDropShadow dx="0" dy="1" stdDeviation="2" floodOpacity="0.2" />
               </filter>
             </defs>
 
             {/* Metallic outer ring */}
-            <circle
-              cx={CENTER}
-              cy={CENTER}
-              r={OUTER_RADIUS}
-              fill="none"
-              stroke="url(#metal-ring)"
-              strokeWidth={OUTER_RING_WIDTH}
-            />
-            {/* Ring inner border */}
-            <circle
-              cx={CENTER}
-              cy={CENTER}
-              r={RADIUS + 1}
-              fill="none"
-              stroke="rgba(0,0,0,0.08)"
-              strokeWidth="1"
-            />
+            <circle cx={CENTER} cy={CENTER} r={OUTER_RADIUS} fill="none" stroke="url(#metal-ring)" strokeWidth={OUTER_RING_WIDTH} />
+            <circle cx={CENTER} cy={CENTER} r={RADIUS + 1} fill="none" stroke="rgba(0,0,0,0.08)" strokeWidth="1" />
 
             {/* Segments */}
             {foods.map((food, i) => {
               const startAngle = i * segmentAngle;
               const endAngle = startAngle + segmentAngle;
               const midAngle = startAngle + segmentAngle / 2;
-              const labelPos = polarToCartesian(CENTER, CENTER, RADIUS * 0.6, midAngle);
-              const displayName = food.name.length > 10 ? food.name.slice(0, 10) + '...' : food.name;
+              // Position text along radial axis, 60% from center
+              const labelPos = polarToCartesian(CENTER, CENTER, RADIUS * 0.58, midAngle);
+              const displayName = food.name.length > 12 ? food.name.slice(0, 12) + '..' : food.name;
+              // Rotate text so it reads outward from center (radial)
+              // Adjust by -90 because SVG 0° is at 3 o'clock, we start at 12
+              const textRotation = midAngle - 90;
 
               return (
                 <g key={food.id}>
@@ -186,13 +173,11 @@ export function Wheel({ foods, onSpinComplete, isSpinning, onSpinStart }: WheelP
                     textAnchor="middle"
                     dominantBaseline="central"
                     fill="#fff"
-                    fontSize={foods.length > 8 ? 9 : foods.length > 5 ? 11 : 12}
-                    fontWeight="600"
-                    style={{
-                      textShadow: '0 1px 3px rgba(0,0,0,0.4)',
-                      transform: `rotate(${midAngle}deg)`,
-                      transformOrigin: `${labelPos.x}px ${labelPos.y}px`,
-                    }}
+                    fontSize={fontSize}
+                    fontWeight="700"
+                    letterSpacing="0.5"
+                    transform={`rotate(${textRotation}, ${labelPos.x}, ${labelPos.y})`}
+                    style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}
                   >
                     {displayName}
                   </text>
@@ -200,7 +185,7 @@ export function Wheel({ foods, onSpinComplete, isSpinning, onSpinStart }: WheelP
               );
             })}
 
-            {/* Center hub — layered */}
+            {/* Center hub */}
             <circle cx={CENTER} cy={CENTER} r={24} fill="url(#hub-outer)" filter="url(#hub-shadow)" />
             <circle cx={CENTER} cy={CENTER} r={20} fill="#fff" stroke="#e8e8e8" strokeWidth="1" />
             <circle cx={CENTER} cy={CENTER} r={10} fill="url(#hub-inner)" />
