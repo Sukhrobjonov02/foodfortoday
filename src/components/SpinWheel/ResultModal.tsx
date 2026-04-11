@@ -62,7 +62,7 @@ export function ResultModal({ food, isOpen, onClose, onSpinAgain }: ResultModalP
               <X size={18} />
             </button>
 
-            <div className="flex flex-col items-center text-center px-6 pt-2 pb-10">
+            <div className="flex flex-col items-center text-center px-6 pt-2 pb-16">
               {/* Food image placeholder */}
               <motion.div
                 initial={{ scale: 0, rotate: -20 }}
