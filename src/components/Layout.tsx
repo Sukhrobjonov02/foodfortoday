@@ -27,7 +27,10 @@ export function Layout({ children, activeTab }: LayoutProps) {
         }}
       />
 
-      <div className="relative flex-1 pb-32">
+      <div
+        className="relative flex-1"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 112px)' }}
+      >
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={activeTab}

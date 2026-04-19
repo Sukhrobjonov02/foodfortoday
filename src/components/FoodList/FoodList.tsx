@@ -60,7 +60,10 @@ export function FoodList({ foods, onAdd, onRemove, onUpdate }: FoodListProps) {
         </p>
       </div>
 
-      <div className="px-4 pt-2 pb-[180px] overflow-y-auto">
+      <div
+        className="px-4 pt-2 overflow-y-auto"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 180px)' }}
+      >
         {foods.length === 0 ? (
           <EmptyState onFocus={() => {
             const input = document.getElementById('inline-composer-input') as HTMLInputElement | null;

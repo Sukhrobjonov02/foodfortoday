@@ -17,7 +17,10 @@ export function TabBar({ activeTab, onTabChange }: TabBarProps) {
   const activeIdx = tabs.findIndex((t) => t.id === activeTab);
 
   return (
-    <div className="fixed bottom-5 left-4 right-4 z-30 flex justify-center">
+    <div
+      className="fixed left-4 right-4 z-30 flex justify-center"
+      style={{ bottom: 'max(20px, calc(env(safe-area-inset-bottom) + 12px))' }}
+    >
       <div
         className={clsx(
           'relative flex w-full max-w-md rounded-[22px] p-[5px]',

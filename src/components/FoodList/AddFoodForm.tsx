@@ -31,7 +31,10 @@ export function AddFoodForm({ onAdd, existingNames }: AddFoodFormProps) {
   };
 
   return (
-    <div className="fixed left-4 right-4 bottom-[96px] z-20 flex justify-center">
+    <div
+      className="fixed left-4 right-4 z-20 flex justify-center"
+      style={{ bottom: 'max(96px, calc(env(safe-area-inset-bottom) + 88px))' }}
+    >
       <div
         className={clsx(
           'flex items-center gap-2 p-1.5 rounded-[18px] w-full max-w-md',
