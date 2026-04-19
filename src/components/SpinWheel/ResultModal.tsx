@@ -52,7 +52,7 @@ export function ResultModal({ food, isOpen, onClose, onSpinAgain }: ResultModalP
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 320 }}
             className="fixed left-0 right-0 bottom-0 z-50 bg-app-bg rounded-t-[32px] overflow-hidden shadow-[0_-20px_60px_rgba(0,0,0,0.2)]"
-            style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)' }}
+            style={{ paddingBottom: 'calc(var(--tg-safe-bottom, 0px) + 20px)' }}
           >
             <div
               className="pointer-events-none absolute inset-0 opacity-[0.035]"
@@ -62,11 +62,9 @@ export function ResultModal({ food, isOpen, onClose, onSpinAgain }: ResultModalP
               }}
             />
 
-            <div className="relative flex flex-col items-center px-6 pt-3 pb-6">
-              {/* handle */}
+            <div className="relative flex flex-col items-center px-6 pt-3 pb-2">
               <div className="mb-5 w-10 h-1 rounded-full bg-border" />
 
-              {/* hero icon */}
               <div
                 className="relative mb-4 w-[76px] h-[76px] rounded-[24px] flex items-center justify-center animate-[pop-in_0.5s_cubic-bezier(0.2,1.4,0.4,1)]"
                 style={{
@@ -84,22 +82,18 @@ export function ResultModal({ food, isOpen, onClose, onSpinAgain }: ResultModalP
                 </div>
               </div>
 
-              {/* eyebrow */}
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted mb-2">
                 — Today's pick —
               </p>
 
-              {/* name */}
               <h2 className="text-center text-[34px] font-bold tracking-[-0.03em] text-ink leading-[1.1] mb-1.5 max-w-full break-words">
                 {food.name}
               </h2>
 
-              {/* subtitle */}
               <p className="text-[15px] italic text-muted mb-6">
                 Bon appétit — enjoy your meal
               </p>
 
-              {/* actions */}
               <div className="flex gap-2.5 w-full">
                 <button
                   onClick={onClose}

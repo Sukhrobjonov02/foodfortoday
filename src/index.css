@@ -41,6 +41,11 @@
   50%      { transform: rotate(14deg); }
 }
 
+:root {
+  --tg-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --tg-viewport-stable-height: 100svh;
+}
+
 * {
   margin: 0;
   padding: 0;

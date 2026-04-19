@@ -3,12 +3,12 @@ import { Plus } from 'lucide-react';
 import clsx from 'clsx';
 import WebApp from '@twa-dev/sdk';
 
-interface AddFoodFormProps {
+interface ComposerProps {
   onAdd: (name: string) => Promise<void>;
   existingNames: string[];
 }
 
-export function AddFoodForm({ onAdd, existingNames }: AddFoodFormProps) {
+export function Composer({ onAdd, existingNames }: ComposerProps) {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
 
@@ -31,13 +31,10 @@ export function AddFoodForm({ onAdd, existingNames }: AddFoodFormProps) {
   };
 
   return (
-    <div
-      className="fixed left-4 right-4 z-20 flex justify-center"
-      style={{ bottom: 'max(96px, calc(env(safe-area-inset-bottom) + 88px))' }}
-    >
+    <div className="flex flex-col gap-1">
       <div
         className={clsx(
-          'flex items-center gap-2 p-1.5 rounded-[18px] w-full max-w-md',
+          'flex items-center gap-2 p-1.5 rounded-[18px]',
           'bg-surface border border-border',
           'shadow-[0_10px_30px_rgba(0,0,0,0.08),0_2px_6px_rgba(0,0,0,0.04)]'
         )}
@@ -67,7 +64,7 @@ export function AddFoodForm({ onAdd, existingNames }: AddFoodFormProps) {
         </button>
       </div>
       {error && (
-        <p className="mt-1.5 ml-3.5 text-xs font-medium text-danger">{error}</p>
+        <p className="ml-3.5 text-xs font-medium text-danger">{error}</p>
       )}
     </div>
   );

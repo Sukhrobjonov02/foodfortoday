@@ -5,10 +5,11 @@ import type { Tab } from '../types';
 
 interface LayoutProps {
   children: ReactNode;
+  bottomDock: ReactNode;
   activeTab: Tab;
 }
 
-export function Layout({ children, activeTab }: LayoutProps) {
+export function Layout({ children, bottomDock, activeTab }: LayoutProps) {
   const prevTab = useRef(activeTab);
   const direction = activeTab === 'foods' ? -1 : 1;
 
@@ -17,7 +18,10 @@ export function Layout({ children, activeTab }: LayoutProps) {
   }
 
   return (
-    <div className="relative min-h-screen bg-app-bg text-ink flex flex-col overflow-hidden">
+    <div
+      className="relative h-svh flex flex-col bg-app-bg text-ink overflow-hidden"
+      style={{ paddingBottom: 'var(--tg-safe-bottom, 0px)' }}
+    >
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.06]"
         style={{
@@ -27,10 +31,7 @@ export function Layout({ children, activeTab }: LayoutProps) {
         }}
       />
 
-      <div
-        className="relative flex-1"
-        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 112px)' }}
-      >
+      <main className="relative flex-1 min-h-0 overflow-y-auto">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={activeTab}
@@ -38,10 +39,15 @@ export function Layout({ children, activeTab }: LayoutProps) {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: direction * -30 }}
             transition={{ duration: 0.22, ease: 'easeOut' }}
+            className="min-h-full"
           >
             {children}
           </motion.div>
         </AnimatePresence>
+      </main>
+
+      <div className="relative shrink-0 px-4 pt-2 pb-3 flex flex-col gap-2.5">
+        {bottomDock}
       </div>
     </div>
   );
