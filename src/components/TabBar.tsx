@@ -13,16 +13,14 @@ const tabs = [
   { id: 'spin' as Tab, label: 'Spin & Win', Icon: Dices },
 ];
 
-const TAB_WIDTH = 124;
-
 export function TabBar({ activeTab, onTabChange }: TabBarProps) {
   const activeIdx = tabs.findIndex((t) => t.id === activeTab);
 
   return (
-    <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-30">
+    <div className="fixed bottom-5 left-4 right-4 z-30 flex justify-center">
       <div
         className={clsx(
-          'relative flex rounded-[22px] p-[5px]',
+          'relative flex w-full max-w-md rounded-[22px] p-[5px]',
           'bg-white/[0.82] backdrop-blur-[20px] backdrop-saturate-[1.8]',
           'border border-white/60',
           'shadow-[0_14px_32px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.06)]'
@@ -31,10 +29,10 @@ export function TabBar({ activeTab, onTabChange }: TabBarProps) {
         <motion.div
           className="absolute top-[5px] bottom-[5px] rounded-[17px] bg-primary"
           style={{
-            width: TAB_WIDTH,
+            width: 'calc(50% - 5px)',
             boxShadow: '0 4px 12px oklch(0.68 0.18 55 / 0.4)',
           }}
-          animate={{ left: activeIdx === 0 ? 5 : 5 + TAB_WIDTH }}
+          animate={{ left: activeIdx === 0 ? 5 : '50%' }}
           transition={{ type: 'spring', stiffness: 400, damping: 32 }}
         />
 
@@ -44,8 +42,7 @@ export function TabBar({ activeTab, onTabChange }: TabBarProps) {
             <button
               key={id}
               onClick={() => onTabChange(id)}
-              className="relative z-10 flex items-center justify-center gap-[7px] py-[10px] px-3"
-              style={{ width: TAB_WIDTH }}
+              className="relative z-10 flex-1 flex items-center justify-center gap-[7px] py-[10px] px-3"
             >
               <motion.span
                 animate={{ scale: isActive ? 1.05 : 1 }}
@@ -63,7 +60,7 @@ export function TabBar({ activeTab, onTabChange }: TabBarProps) {
               </motion.span>
               <span
                 className={clsx(
-                  'text-[13.5px] font-semibold tracking-[-0.01em] transition-colors',
+                  'text-[14px] font-semibold tracking-[-0.01em] transition-colors',
                   isActive ? 'text-white' : 'text-muted'
                 )}
               >
