@@ -1,7 +1,12 @@
 export const WHEEL_COLORS = [
-  '#FF4136', '#FF851B', '#FFDC00', '#2ECC40',
-  '#0074D9', '#B10DC9', '#FF6BB5', '#01FF70',
-  '#39CCCC', '#F012BE', '#FF6F00', '#7FDBFF',
+  'oklch(0.70 0.17 60)',
+  'oklch(0.58 0.17 30)',
+  'oklch(0.62 0.13 145)',
+  'oklch(0.52 0.14 340)',
+  'oklch(0.68 0.11 205)',
+  'oklch(0.68 0.14 10)',
+  'oklch(0.55 0.12 260)',
+  'oklch(0.72 0.14 95)',
 ];
 
 export const getSegmentColor = (index: number) =>

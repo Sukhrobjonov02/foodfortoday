@@ -7,12 +7,13 @@ import WebApp from '@twa-dev/sdk';
 
 interface FoodItemProps {
   item: FoodItemType;
+  index: number;
   onRemove: (id: string) => void;
   onUpdate: (id: string, name: string) => Promise<void>;
   existingNames: string[];
 }
 
-export function FoodItem({ item, onRemove, onUpdate, existingNames }: FoodItemProps) {
+export function FoodItem({ item, index, onRemove, onUpdate, existingNames }: FoodItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(item.name);
   const [editError, setEditError] = useState('');
@@ -48,25 +49,15 @@ export function FoodItem({ item, onRemove, onUpdate, existingNames }: FoodItemPr
 
   const saveEdit = async () => {
     const trimmed = editValue.trim();
-    if (!trimmed) {
-      setEditError('Name cannot be empty');
-      return;
-    }
-    if (trimmed.length > 50) {
-      setEditError('Too long (max 50)');
-      return;
-    }
+    if (!trimmed) return setEditError('Name this dish');
+    if (trimmed.length > 50) return setEditError('Too long (max 50)');
     if (
       trimmed.toLowerCase() !== item.name.toLowerCase() &&
       existingNames.some((n) => n.toLowerCase() === trimmed.toLowerCase())
     ) {
-      setEditError('Already exists');
-      return;
+      return setEditError('Already on your list');
     }
-    if (trimmed === item.name) {
-      cancelEditing();
-      return;
-    }
+    if (trimmed === item.name) return cancelEditing();
     await onUpdate(item.id, trimmed);
     setIsEditing(false);
     setEditError('');
@@ -79,23 +70,27 @@ export function FoodItem({ item, onRemove, onUpdate, existingNames }: FoodItemPr
   };
 
   return (
-    <div className="relative mx-4 mb-2.5">
-      {/* Swipe delete indicator */}
+    <div className="relative mb-2 rounded-[20px] overflow-hidden">
+      {/* delete track */}
       <motion.div
-        style={{ opacity: deleteOpacity, scale: deleteScale }}
-        className="absolute inset-0 rounded-2xl bg-red-500 flex items-center justify-end pr-5"
+        style={{ opacity: deleteOpacity }}
+        className="absolute inset-0 flex items-center justify-end pr-5"
       >
-        <Trash2 size={20} className="text-white" />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(90deg, transparent 0%, var(--color-danger) 70%)',
+          }}
+        />
+        <motion.div style={{ scale: deleteScale }} className="relative">
+          <Trash2 size={20} className="text-white" />
+        </motion.div>
       </motion.div>
 
-      {/* Card */}
+      {/* card */}
       <motion.div
-        layout
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, x: -120, transition: { duration: 0.2 } }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
-        drag="x"
+        drag={isEditing ? false : 'x'}
         dragConstraints={{ left: -100, right: 0 }}
         dragDirectionLock
         dragSnapToOrigin
@@ -104,62 +99,81 @@ export function FoodItem({ item, onRemove, onUpdate, existingNames }: FoodItemPr
         onDragEnd={(_, info) => {
           if (info.offset.x < -80) handleRemove();
         }}
-        className="relative flex items-center justify-between px-4 py-3.5 rounded-2xl bg-[var(--tg-theme-secondary-bg-color,#f0f0f5)] shadow-sm shadow-black/5 border border-white/40"
+        className={clsx(
+          'relative flex items-center gap-3',
+          'px-4 py-3 rounded-[20px]',
+          'bg-surface border border-border',
+          'shadow-[0_1px_0_var(--color-border-soft),0_1px_2px_rgba(0,0,0,0.03)]',
+          'touch-pan-y select-none',
+          isEditing ? 'cursor-default' : 'cursor-grab'
+        )}
       >
+        {/* index chip */}
+        <div className="shrink-0 w-8 h-8 rounded-[10px] bg-surface-alt border border-border-soft grid place-items-center font-mono text-xs font-semibold text-muted tracking-[-0.02em]">
+          {String(index + 1).padStart(2, '0')}
+        </div>
+
         {isEditing ? (
-          <div className="flex-1 flex flex-col mr-2">
-            <div className="flex items-center gap-2">
-              <input
-                ref={inputRef}
-                value={editValue}
-                onChange={(e) => {
-                  setEditValue(e.target.value);
-                  if (editError) setEditError('');
-                }}
-                onKeyDown={handleKeyDown}
-                className="flex-1 bg-transparent outline-none font-medium text-[var(--tg-theme-text-color,#1a1a2e)] border-b-2 border-[var(--tg-theme-button-color,#6c5ce7)] py-0.5"
-              />
-              <button onClick={saveEdit} className="text-green-500 p-1">
-                <Check size={18} />
-              </button>
-              <button onClick={cancelEditing} className="text-[var(--tg-theme-hint-color,#999)] p-1">
-                <X size={18} />
-              </button>
-            </div>
+          <div className="flex-1 min-w-0">
+            <input
+              ref={inputRef}
+              value={editValue}
+              onChange={(e) => {
+                setEditValue(e.target.value);
+                if (editError) setEditError('');
+              }}
+              onKeyDown={handleKeyDown}
+              maxLength={60}
+              className={clsx(
+                'w-full bg-transparent outline-none',
+                'text-[17px] font-medium text-ink tracking-[-0.01em]',
+                'border-b-[1.5px] py-0.5',
+                editError ? 'border-danger' : 'border-primary'
+              )}
+            />
             {editError && (
-              <p className="text-red-500 text-xs mt-1">{editError}</p>
+              <p className="mt-1 text-xs text-danger">{editError}</p>
             )}
           </div>
         ) : (
-          <>
-            <span className="font-medium truncate mr-3 text-[var(--tg-theme-text-color,#1a1a2e)]">
-              {item.name}
-            </span>
-            <div className="flex items-center gap-1 shrink-0">
+          <div className="flex-1 min-w-0 truncate text-[17px] font-medium text-ink tracking-[-0.01em]">
+            {item.name}
+          </div>
+        )}
+
+        <div className="flex gap-1 shrink-0">
+          {isEditing ? (
+            <>
+              <button
+                onClick={saveEdit}
+                className="w-8 h-8 rounded-[10px] grid place-items-center bg-success active:scale-90 transition-transform"
+              >
+                <Check size={18} className="text-white" strokeWidth={2.4} />
+              </button>
+              <button
+                onClick={cancelEditing}
+                className="w-8 h-8 rounded-[10px] grid place-items-center bg-surface-alt border border-border-soft active:scale-90 transition-transform"
+              >
+                <X size={18} className="text-muted" />
+              </button>
+            </>
+          ) : (
+            <>
               <button
                 onClick={startEditing}
-                className={clsx(
-                  'p-1.5 rounded-lg transition-colors',
-                  'text-[var(--tg-theme-hint-color,#999)]',
-                  'hover:text-[var(--tg-theme-button-color,#6c5ce7)]',
-                  'hover:bg-[var(--tg-theme-button-color,#6c5ce7)]/10'
-                )}
+                className="w-8 h-8 rounded-[10px] grid place-items-center bg-surface-alt border border-border-soft active:scale-90 transition-transform"
               >
-                <Pencil size={16} />
+                <Pencil size={16} className="text-muted" />
               </button>
               <button
                 onClick={handleRemove}
-                className={clsx(
-                  'p-1.5 rounded-lg transition-colors',
-                  'text-[var(--tg-theme-hint-color,#999)]',
-                  'hover:text-red-500 hover:bg-red-500/10'
-                )}
+                className="w-8 h-8 rounded-[10px] grid place-items-center bg-surface-alt border border-border-soft active:scale-90 transition-transform"
               >
-                <Trash2 size={16} />
+                <Trash2 size={16} className="text-muted" />
               </button>
-            </div>
-          </>
-        )}
+            </>
+          )}
+        </div>
       </motion.div>
     </div>
   );
