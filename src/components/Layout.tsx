@@ -46,7 +46,7 @@ export function Layout({ children, bottomDock, activeTab }: LayoutProps) {
         </AnimatePresence>
       </main>
 
-      <div className="relative shrink-0 px-4 pt-2 pb-3 flex flex-col gap-2.5">
+      <div className="relative shrink-0 px-4 pt-2 pb-3 flex flex-col gap-3">
         {bottomDock}
       </div>
     </div>
