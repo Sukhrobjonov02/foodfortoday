@@ -41,7 +41,7 @@ export function TabBar({ activeTab, onTabChange }: TabBarProps) {
           <button
             key={id}
             onClick={() => onTabChange(id)}
-            className="relative z-10 flex-1 flex items-center justify-center gap-[7px] py-[10px] px-3"
+            className="relative z-10 flex-1 flex flex-col items-center justify-center gap-1 py-[10px] px-3"
           >
             <motion.span
               animate={{ scale: isActive ? 1.05 : 1 }}
@@ -49,7 +49,7 @@ export function TabBar({ activeTab, onTabChange }: TabBarProps) {
               className="flex"
             >
               <Icon
-                size={17}
+                size={20}
                 strokeWidth={isActive ? 2.2 : 1.8}
                 className={clsx(
                   'transition-colors',
