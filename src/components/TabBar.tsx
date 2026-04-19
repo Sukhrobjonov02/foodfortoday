@@ -41,7 +41,7 @@ export function TabBar({ activeTab, onTabChange }: TabBarProps) {
           <button
             key={id}
             onClick={() => onTabChange(id)}
-            className="relative z-10 flex-1 flex flex-col items-center justify-center gap-1 py-[10px] px-3"
+            className="relative z-10 flex-1 flex flex-col items-center justify-center gap-[3px] min-h-[58px] py-3 px-3 leading-none"
           >
             <motion.span
               animate={{ scale: isActive ? 1.05 : 1 }}
