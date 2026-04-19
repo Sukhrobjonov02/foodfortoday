@@ -49,7 +49,7 @@ export function SpinWheel({ foods }: SpinWheelProps) {
           </p>
         </div>
       ) : (
-        <div className="flex-1 flex flex-col items-center justify-center gap-8 px-5 pt-2 pb-[140px]">
+        <div className="flex flex-col items-center gap-7 px-5 pt-4">
           <Wheel
             foods={foods}
             isSpinning={isSpinning}
