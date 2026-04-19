@@ -12,21 +12,29 @@ export function Layout({ children, activeTab }: LayoutProps) {
   const prevTab = useRef(activeTab);
   const direction = activeTab === 'foods' ? -1 : 1;
 
-  // Update previous tab after computing direction
   if (prevTab.current !== activeTab) {
     prevTab.current = activeTab;
   }
 
   return (
-    <div className="min-h-screen bg-[var(--tg-theme-bg-color,#f8f9fa)] text-[var(--tg-theme-text-color,#1a1a2e)] flex flex-col overflow-hidden">
-      <div className="flex-1 pb-32">
+    <div className="relative min-h-screen bg-app-bg text-ink flex flex-col overflow-hidden">
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.06]"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle at 1px 1px, var(--color-ink) 0.5px, transparent 0)',
+          backgroundSize: '18px 18px',
+        }}
+      />
+
+      <div className="relative flex-1 pb-32">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={activeTab}
             initial={{ opacity: 0, x: direction * 30 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: direction * -30 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
           >
             {children}
           </motion.div>

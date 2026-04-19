@@ -13,51 +13,60 @@ const tabs = [
   { id: 'spin' as Tab, label: 'Spin & Win', Icon: Dices },
 ];
 
+const TAB_WIDTH = 124;
+
 export function TabBar({ activeTab, onTabChange }: TabBarProps) {
+  const activeIdx = tabs.findIndex((t) => t.id === activeTab);
+
   return (
-    <div className="fixed bottom-8 left-4 right-4 z-20">
-      <div className={clsx(
-        'flex rounded-2xl overflow-hidden',
-        'bg-[var(--tg-theme-bg-color,#ffffff)]/80',
-        'backdrop-blur-xl',
-        'border border-white/20',
-        'shadow-lg shadow-black/10'
-      )}>
+    <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-30">
+      <div
+        className={clsx(
+          'relative flex rounded-[22px] p-[5px]',
+          'bg-white/[0.82] backdrop-blur-[20px] backdrop-saturate-[1.8]',
+          'border border-white/60',
+          'shadow-[0_14px_32px_rgba(0,0,0,0.12),0_2px_6px_rgba(0,0,0,0.06)]'
+        )}
+      >
+        <motion.div
+          className="absolute top-[5px] bottom-[5px] rounded-[17px] bg-primary"
+          style={{
+            width: TAB_WIDTH,
+            boxShadow: '0 4px 12px oklch(0.68 0.18 55 / 0.4)',
+          }}
+          animate={{ left: activeIdx === 0 ? 5 : 5 + TAB_WIDTH }}
+          transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+        />
+
         {tabs.map(({ id, label, Icon }) => {
           const isActive = activeTab === id;
           return (
             <button
               key={id}
               onClick={() => onTabChange(id)}
-              className="flex-1 relative flex flex-col items-center gap-1 py-3 transition-colors"
+              className="relative z-10 flex items-center justify-center gap-[7px] py-[10px] px-3"
+              style={{ width: TAB_WIDTH }}
             >
-              {isActive && (
-                <motion.div
-                  layoutId="tab-indicator"
-                  className="absolute inset-1 rounded-xl bg-[var(--tg-theme-button-color,#6c5ce7)]/12"
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                />
-              )}
-              <motion.div
-                animate={{ scale: isActive ? 1 : 0.9 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+              <motion.span
+                animate={{ scale: isActive ? 1.05 : 1 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 24 }}
+                className="flex"
               >
                 <Icon
-                  size={22}
+                  size={17}
+                  strokeWidth={isActive ? 2.2 : 1.8}
                   className={clsx(
-                    'transition-colors duration-200',
-                    isActive
-                      ? 'text-[var(--tg-theme-button-color,#6c5ce7)]'
-                      : 'text-[var(--tg-theme-hint-color,#999)]'
+                    'transition-colors',
+                    isActive ? 'text-white' : 'text-muted'
                   )}
                 />
-              </motion.div>
-              <span className={clsx(
-                'text-xs font-medium relative z-10 transition-colors duration-200',
-                isActive
-                  ? 'text-[var(--tg-theme-button-color,#6c5ce7)]'
-                  : 'text-[var(--tg-theme-hint-color,#999)]'
-              )}>
+              </motion.span>
+              <span
+                className={clsx(
+                  'text-[13.5px] font-semibold tracking-[-0.01em] transition-colors',
+                  isActive ? 'text-white' : 'text-muted'
+                )}
+              >
                 {label}
               </span>
             </button>

@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, RotateCcw, Utensils } from 'lucide-react';
+import { RotateCw, Utensils, Sparkles } from 'lucide-react';
 import type { FoodItem } from '../../types';
 import confetti from 'canvas-confetti';
+import { WHEEL_COLORS } from '../../utils/colors';
 
 interface ResultModalProps {
   food: FoodItem | null;
@@ -12,114 +13,108 @@ interface ResultModalProps {
 }
 
 function fireConfetti() {
-  const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
-
-  confetti({ ...defaults, particleCount: 50, origin: { x: 0.3, y: 0.6 } });
-  confetti({ ...defaults, particleCount: 50, origin: { x: 0.7, y: 0.6 } });
-
-  setTimeout(() => {
-    confetti({ ...defaults, particleCount: 30, origin: { x: 0.5, y: 0.4 }, startVelocity: 45 });
-  }, 150);
+  const colors = WHEEL_COLORS;
+  [0.2, 0.5, 0.8].forEach((x, i) => {
+    setTimeout(() => {
+      confetti({
+        particleCount: 45,
+        spread: 70,
+        origin: { x, y: 0.65 },
+        colors,
+        scalar: 0.9,
+        ticks: 60,
+        zIndex: 100,
+      });
+    }, i * 120);
+  });
 }
 
 export function ResultModal({ food, isOpen, onClose, onSpinAgain }: ResultModalProps) {
   useEffect(() => {
-    if (isOpen && food) {
-      fireConfetti();
-    }
+    if (isOpen && food) fireConfetti();
   }, [isOpen, food]);
 
   return (
     <AnimatePresence>
       {isOpen && food && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            className="fixed inset-0 bg-black/45 backdrop-blur-md z-40"
           />
 
-          {/* Modal */}
           <motion.div
-            initial={{ y: '100%', opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: '100%', opacity: 0 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-50 bg-[var(--tg-theme-bg-color,#fff)] rounded-t-3xl shadow-2xl overflow-hidden"
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+            className="fixed left-0 right-0 bottom-0 z-50 bg-app-bg rounded-t-[32px] overflow-hidden shadow-[0_-20px_60px_rgba(0,0,0,0.2)]"
           >
-            {/* Handle bar */}
-            <div className="flex justify-center pt-3 pb-1">
-              <div className="w-10 h-1 rounded-full bg-[var(--tg-theme-hint-color,#ccc)]/40" />
-            </div>
+            {/* decorative tints */}
+            <div
+              className="pointer-events-none absolute inset-0 opacity-[0.035]"
+              style={{
+                background:
+                  'radial-gradient(circle at 20% 10%, var(--color-primary) 0%, transparent 40%), radial-gradient(circle at 80% 20%, var(--color-accent) 0%, transparent 40%)',
+              }}
+            />
 
-            <button
-              onClick={onClose}
-              className="absolute top-3 right-3 text-[var(--tg-theme-hint-color,#999)] p-2 rounded-full hover:bg-black/5 transition-colors"
-            >
-              <X size={18} />
-            </button>
+            <div className="relative px-6 pt-[14px] pb-9">
+              {/* handle */}
+              <div className="mx-auto mb-5 w-10 h-1 rounded-full bg-border" />
 
-            <div className="flex flex-col items-center text-center px-6 pt-2 pb-16">
-              {/* Food image placeholder */}
-              <motion.div
-                initial={{ scale: 0, rotate: -20 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: 'spring', damping: 12, stiffness: 200, delay: 0.1 }}
-                className="w-28 h-28 rounded-2xl bg-gradient-to-br from-orange-100 to-amber-50 border border-orange-200/50 flex items-center justify-center mb-4 shadow-sm"
+              {/* hero icon */}
+              <div
+                className="mx-auto mb-[18px] w-[76px] h-[76px] rounded-[24px] grid place-items-center relative animate-[pop-in_0.5s_cubic-bezier(0.2,1.4,0.4,1)]"
+                style={{
+                  background:
+                    'linear-gradient(145deg, oklch(0.68 0.18 55), oklch(0.56 0.17 42))',
+                  boxShadow: '0 20px 40px oklch(0.68 0.18 55 / 0.4)',
+                }}
               >
-                <Utensils size={40} className="text-orange-400" strokeWidth={1.5} />
-              </motion.div>
+                <Utensils size={36} strokeWidth={2} className="text-white" />
+                <div
+                  className="absolute -top-1.5 -right-1.5 animate-[wiggle_1.2s_ease-in-out_infinite]"
+                  style={{ color: 'oklch(0.42 0.13 340)' }}
+                >
+                  <Sparkles size={20} fill="currentColor" />
+                </div>
+              </div>
 
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="text-xs text-[var(--tg-theme-hint-color,#999)] font-semibold uppercase tracking-widest"
-              >
-                Today's pick
-              </motion.p>
+              {/* eyebrow */}
+              <p className="text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-muted mb-2.5">
+                — Today's pick —
+              </p>
 
-              <motion.h2
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="text-3xl font-bold mt-2 mb-1 text-[var(--tg-theme-text-color,#1a1a2e)]"
-              >
+              {/* name */}
+              <h2 className="text-center text-[36px] font-bold tracking-[-0.03em] text-ink leading-[1.1] mb-2">
                 {food.name}
-              </motion.h2>
+              </h2>
 
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
-                className="text-sm text-[var(--tg-theme-hint-color,#999)] mb-6"
-              >
-                Bon appetit!
-              </motion.p>
+              {/* subtitle */}
+              <p className="text-center text-[15px] italic text-muted mb-7">
+                Bon appétit — enjoy your meal
+              </p>
 
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.45 }}
-                className="flex gap-3 w-full"
-              >
+              {/* actions */}
+              <div className="flex gap-2.5">
                 <button
                   onClick={onClose}
-                  className="flex-1 py-3.5 rounded-xl border border-[var(--tg-theme-hint-color,#ddd)]/30 text-[var(--tg-theme-text-color,#333)] font-semibold transition-colors active:scale-[0.97]"
+                  className="flex-1 py-3.5 rounded-2xl border-[1.5px] border-border bg-transparent text-ink text-[15px] font-semibold active:scale-[0.97] transition-transform"
                 >
-                  Got it!
+                  Got it
                 </button>
                 <button
                   onClick={onSpinAgain}
-                  className="flex-1 py-3.5 rounded-xl bg-[var(--tg-theme-button-color,#6c5ce7)] text-[var(--tg-theme-button-text-color,#fff)] font-semibold flex items-center justify-center gap-2 active:scale-[0.97] transition-transform shadow-md"
+                  className="flex-1 py-3.5 rounded-2xl bg-primary text-white text-[15px] font-semibold flex items-center justify-center gap-2 active:scale-[0.97] transition-transform shadow-[0_8px_20px_oklch(0.68_0.18_55/0.4)]"
                 >
-                  <RotateCcw size={16} />
-                  Spin Again
+                  <RotateCw size={16} strokeWidth={2.4} />
+                  Spin again
                 </button>
-              </motion.div>
+              </div>
             </div>
           </motion.div>
         </>

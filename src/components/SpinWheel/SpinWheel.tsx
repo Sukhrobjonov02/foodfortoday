@@ -18,9 +18,7 @@ export function SpinWheel({ foods }: SpinWheelProps) {
     setSelectedFood(food);
     setShowResult(true);
     setIsSpinning(false);
-    try {
-      WebApp.HapticFeedback.notificationOccurred('success');
-    } catch {}
+    try { WebApp.HapticFeedback.notificationOccurred('success'); } catch {}
   };
 
   const handleSpinAgain = () => {
@@ -28,35 +26,38 @@ export function SpinWheel({ foods }: SpinWheelProps) {
     setSelectedFood(null);
   };
 
-  if (foods.length < 2) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[70vh] text-center px-6">
-        <AlertCircle size={48} className="text-[var(--tg-theme-hint-color,#999)]" strokeWidth={1.5} />
-        <h2 className="text-xl font-bold mt-4">Need more dishes!</h2>
-        <p className="text-[var(--tg-theme-hint-color,#999)] mt-2">
-          Add at least 2 foods to your list to spin the wheel.
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <div className="px-4 pt-4 pb-2">
-        <h1 className="text-2xl font-bold">Spin & Win</h1>
-        <p className="text-sm text-[var(--tg-theme-hint-color,#999)] mt-1">
-          Let the wheel decide your meal!
-        </p>
+    <div className="relative h-full flex flex-col">
+      <div className="px-5 pt-[14px] pb-2">
+        <h1 className="text-[32px] font-bold tracking-[-0.03em] text-ink">
+          Spin &amp; Win
+        </h1>
+        <p className="mt-0.5 text-sm text-muted">Let the wheel decide your meal</p>
       </div>
 
-      <div className="flex justify-center pt-6">
-        <Wheel
-          foods={foods}
-          isSpinning={isSpinning}
-          onSpinStart={() => setIsSpinning(true)}
-          onSpinComplete={handleSpinComplete}
-        />
-      </div>
+      {foods.length < 2 ? (
+        <div className="flex-1 flex flex-col items-center gap-[14px] px-6 py-10 text-center">
+          <div className="w-[88px] h-[88px] rounded-[28px] bg-surface-alt border border-border grid place-items-center">
+            <AlertCircle size={40} strokeWidth={1.5} className="text-primary" />
+          </div>
+          <h2 className="text-xl font-bold tracking-[-0.02em] text-ink">
+            Add a few more dishes
+          </h2>
+          <p className="text-sm text-muted max-w-[260px] leading-snug">
+            The wheel needs at least 2 dishes to do its job. Head to{' '}
+            <span className="font-semibold text-primary">My Foods</span> to add more.
+          </p>
+        </div>
+      ) : (
+        <div className="flex-1 flex flex-col items-center justify-center gap-8 px-5 pt-2 pb-[140px]">
+          <Wheel
+            foods={foods}
+            isSpinning={isSpinning}
+            onSpinStart={() => setIsSpinning(true)}
+            onSpinComplete={handleSpinComplete}
+          />
+        </div>
+      )}
 
       <ResultModal
         food={selectedFood}

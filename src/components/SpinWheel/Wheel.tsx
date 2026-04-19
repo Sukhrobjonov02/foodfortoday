@@ -12,202 +12,220 @@ interface WheelProps {
   onSpinStart: () => void;
 }
 
-const WHEEL_SIZE = 300;
-const CENTER = WHEEL_SIZE / 2;
-const RADIUS = 125;
-const OUTER_RING_WIDTH = 12;
-const OUTER_RADIUS = RADIUS + OUTER_RING_WIDTH;
+const SIZE = 300;
+const CX = SIZE / 2;
+const CY = SIZE / 2;
+const R_OUTER = SIZE / 2;
+const R_WHEEL = R_OUTER - 10;
+const R_HUB = SIZE * 0.09;
 
-function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
-  const rad = ((angleDeg - 90) * Math.PI) / 180;
-  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+function polar(cx: number, cy: number, r: number, angleDeg: number) {
+  const a = ((angleDeg - 90) * Math.PI) / 180;
+  return [cx + r * Math.cos(a), cy + r * Math.sin(a)] as const;
 }
 
-function describeArc(cx: number, cy: number, r: number, startAngle: number, endAngle: number) {
-  const start = polarToCartesian(cx, cy, r, endAngle);
-  const end = polarToCartesian(cx, cy, r, startAngle);
-  const largeArc = endAngle - startAngle > 180 ? 1 : 0;
-  return `M ${cx} ${cy} L ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 0 ${end.x} ${end.y} Z`;
-}
-
-function darkenColor(hex: string, amount: number): string {
-  const num = parseInt(hex.slice(1), 16);
-  const r = Math.max(0, ((num >> 16) & 0xff) - amount);
-  const g = Math.max(0, ((num >> 8) & 0xff) - amount);
-  const b = Math.max(0, (num & 0xff) - amount);
-  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+function arcPath(cx: number, cy: number, r: number, a1: number, a2: number) {
+  const [x1, y1] = polar(cx, cy, r, a1);
+  const [x2, y2] = polar(cx, cy, r, a2);
+  const large = a2 - a1 > 180 ? 1 : 0;
+  return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z`;
 }
 
 export function Wheel({ foods, onSpinComplete, isSpinning, onSpinStart }: WheelProps) {
   const controls = useAnimationControls();
   const cumulativeRotation = useRef(0);
   const lastSegmentIndex = useRef(-1);
-  const segmentAngle = 360 / foods.length;
+  const step = 360 / foods.length;
 
   const rotateValue = useMotionValue(0);
   const normalizedRotation = useTransform(rotateValue, (v) => ((v % 360) + 360) % 360);
 
-  const triggerTickHaptic = useCallback(() => {
+  const tickHaptic = useCallback(() => {
     try { WebApp.HapticFeedback.impactOccurred('light'); } catch {}
   }, []);
 
   useEffect(() => {
-    const unsubscribe = normalizedRotation.on('change', (v) => {
-      const currentSegment = Math.floor(v / segmentAngle) % foods.length;
-      if (currentSegment !== lastSegmentIndex.current && lastSegmentIndex.current !== -1) {
-        triggerTickHaptic();
+    const unsub = normalizedRotation.on('change', (v) => {
+      const seg = Math.floor(v / step) % foods.length;
+      if (seg !== lastSegmentIndex.current && lastSegmentIndex.current !== -1) {
+        tickHaptic();
       }
-      lastSegmentIndex.current = currentSegment;
+      lastSegmentIndex.current = seg;
     });
-    return unsubscribe;
-  }, [normalizedRotation, segmentAngle, foods.length, triggerTickHaptic]);
+    return unsub;
+  }, [normalizedRotation, step, foods.length, tickHaptic]);
 
   const spin = async () => {
     if (isSpinning) return;
     onSpinStart();
 
-    const winIndex = Math.floor(Math.random() * foods.length);
-    const extraRotations = 5 + Math.floor(Math.random() * 4);
-    const segmentMiddle = winIndex * segmentAngle + segmentAngle / 2;
-    const targetAngle = extraRotations * 360 + (360 - segmentMiddle);
+    const pickIdx = Math.floor(Math.random() * foods.length);
+    const extraRotations = 5 + Math.floor(Math.random() * 3);
+    const segmentMiddle = pickIdx * step + step / 2;
+    const delta = extraRotations * 360 + (360 - segmentMiddle);
 
-    cumulativeRotation.current += targetAngle;
+    cumulativeRotation.current += delta;
 
     await controls.start({
       rotate: cumulativeRotation.current,
-      transition: {
-        duration: 5,
-        ease: [0.12, 0.8, 0.18, 1],
-      },
+      transition: { duration: 5.2, ease: [0.12, 0.8, 0.18, 1] },
     });
 
     try { WebApp.HapticFeedback.impactOccurred('heavy'); } catch {}
-    onSpinComplete(foods[winIndex]);
+    onSpinComplete(foods[pickIdx]);
   };
 
-  const fontSize = foods.length > 10 ? 11 : foods.length > 6 ? 13 : 16;
+  const fontSize = Math.max(11, Math.min(16, SIZE / (foods.length * 1.1)));
 
   return (
-    <div className="flex flex-col items-center gap-6">
-      <div className="relative" style={{ filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.15))' }}>
-        {/* Pointer */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 z-10" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}>
-          <svg width="28" height="32" viewBox="0 0 28 32">
-            <defs>
-              <linearGradient id="pointer-grad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--tg-theme-button-color, #6c5ce7)" />
-                <stop offset="100%" stopColor="var(--tg-theme-button-color, #5a4bd1)" />
-              </linearGradient>
-            </defs>
-            <path d="M14 0 L26 28 Q14 24 2 28 Z" fill="url(#pointer-grad)" />
-          </svg>
-        </div>
+    <div className="flex flex-col items-center gap-8">
+      <div className="relative" style={{ width: SIZE, height: SIZE + 24 }}>
+        {/* soft ground shadow */}
+        <div
+          className="absolute blur-[8px]"
+          style={{
+            left: SIZE * 0.08,
+            right: SIZE * 0.08,
+            bottom: -2,
+            height: 18,
+            background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.28), transparent 70%)',
+            zIndex: 0,
+          }}
+        />
 
-        <motion.div
-          animate={controls}
-          style={{ rotate: rotateValue }}
-          className="rounded-full"
+        <svg
+          width={SIZE}
+          height={SIZE}
+          viewBox={`0 0 ${SIZE} ${SIZE}`}
+          style={{ position: 'relative', zIndex: 1, overflow: 'visible' }}
         >
-          <svg width={WHEEL_SIZE} height={WHEEL_SIZE} viewBox={`0 0 ${WHEEL_SIZE} ${WHEEL_SIZE}`}>
-            <defs>
-              {foods.map((_, i) => {
-                const baseColor = getSegmentColor(i);
-                const darkColor = darkenColor(baseColor, 20);
-                const midAngle = (i * segmentAngle + segmentAngle / 2 - 90) * Math.PI / 180;
-                const x1 = 0.5 + 0.5 * Math.cos(midAngle);
-                const y1 = 0.5 + 0.5 * Math.sin(midAngle);
-                return (
-                  <linearGradient key={i} id={`seg-${i}`} x1={1 - x1} y1={1 - y1} x2={x1} y2={y1}>
-                    <stop offset="0%" stopColor={baseColor} />
-                    <stop offset="100%" stopColor={darkColor} />
-                  </linearGradient>
-                );
-              })}
-              <linearGradient id="metal-ring" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#e8e8e8" />
-                <stop offset="25%" stopColor="#f5f5f5" />
-                <stop offset="50%" stopColor="#d0d0d0" />
-                <stop offset="75%" stopColor="#f0f0f0" />
-                <stop offset="100%" stopColor="#c8c8c8" />
-              </linearGradient>
-              <radialGradient id="hub-outer">
-                <stop offset="0%" stopColor="#ffffff" />
-                <stop offset="100%" stopColor="#e0e0e0" />
-              </radialGradient>
-              <radialGradient id="hub-inner">
-                <stop offset="0%" stopColor="var(--tg-theme-button-color, #7c6cf7)" />
-                <stop offset="100%" stopColor="var(--tg-theme-button-color, #5a4bd1)" />
-              </radialGradient>
-              <filter id="hub-shadow">
-                <feDropShadow dx="0" dy="1" stdDeviation="2" floodOpacity="0.2" />
-              </filter>
-            </defs>
+          <defs>
+            <linearGradient id="bezel" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#f0ead8" />
+              <stop offset="20%" stopColor="#d6cbae" />
+              <stop offset="50%" stopColor="#b3a177" />
+              <stop offset="80%" stopColor="#d6cbae" />
+              <stop offset="100%" stopColor="#e8dec0" />
+            </linearGradient>
+          </defs>
 
-            {/* Metallic outer ring */}
-            <circle cx={CENTER} cy={CENTER} r={OUTER_RADIUS} fill="none" stroke="url(#metal-ring)" strokeWidth={OUTER_RING_WIDTH} />
-            <circle cx={CENTER} cy={CENTER} r={RADIUS + 1} fill="none" stroke="rgba(0,0,0,0.08)" strokeWidth="1" />
+          {/* outer bezel */}
+          <circle cx={CX} cy={CY} r={R_OUTER} fill="url(#bezel)" />
+          <circle cx={CX} cy={CY} r={R_OUTER - 1} fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1" />
+          <circle cx={CX} cy={CY} r={R_WHEEL + 1.5} fill="none" stroke="rgba(0,0,0,0.25)" strokeWidth="1" />
 
-            {/* Segments */}
+          {/* rotating group */}
+          <motion.g animate={controls} style={{ rotate: rotateValue, transformOrigin: `${CX}px ${CY}px` }}>
             {foods.map((food, i) => {
-              const startAngle = i * segmentAngle;
-              const endAngle = startAngle + segmentAngle;
-              const midAngle = startAngle + segmentAngle / 2;
-              // Position text along radial axis, 60% from center
-              const labelPos = polarToCartesian(CENTER, CENTER, RADIUS * 0.58, midAngle);
-              const displayName = food.name.length > 12 ? food.name.slice(0, 12) + '..' : food.name;
-              // Rotate text so it reads outward from center (radial)
-              // Adjust by -90 because SVG 0° is at 3 o'clock, we start at 12
-              const textRotation = midAngle - 90;
-
+              const a1 = i * step;
+              const a2 = (i + 1) * step;
+              const [sepX, sepY] = polar(CX, CY, R_WHEEL, a1);
               return (
                 <g key={food.id}>
-                  <path
-                    d={describeArc(CENTER, CENTER, RADIUS, startAngle, endAngle)}
-                    fill={`url(#seg-${i})`}
-                    stroke="rgba(255,255,255,0.5)"
-                    strokeWidth="1.5"
+                  <path d={arcPath(CX, CY, R_WHEEL, a1, a2)} fill={getSegmentColor(i)} />
+                  <line
+                    x1={CX}
+                    y1={CY}
+                    x2={sepX}
+                    y2={sepY}
+                    stroke="rgba(255,255,255,0.45)"
+                    strokeWidth="1.2"
                   />
-                  <text
-                    x={labelPos.x}
-                    y={labelPos.y}
-                    textAnchor="middle"
-                    dominantBaseline="central"
-                    fill="#fff"
-                    fontSize={fontSize}
-                    fontWeight="700"
-                    letterSpacing="0.5"
-                    transform={`rotate(${textRotation}, ${labelPos.x}, ${labelPos.y})`}
-                    style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}
-                  >
-                    {displayName}
-                  </text>
                 </g>
               );
             })}
 
-            {/* Center hub */}
-            <circle cx={CENTER} cy={CENTER} r={24} fill="url(#hub-outer)" filter="url(#hub-shadow)" />
-            <circle cx={CENTER} cy={CENTER} r={20} fill="#fff" stroke="#e8e8e8" strokeWidth="1" />
-            <circle cx={CENTER} cy={CENTER} r={10} fill="url(#hub-inner)" />
-          </svg>
-        </motion.div>
+            {/* labels */}
+            {foods.map((food, i) => {
+              const mid = i * step + step / 2;
+              const [tx, ty] = polar(CX, CY, R_WHEEL * 0.62, mid);
+              const label = food.name.length > 12 ? food.name.slice(0, 11) + '…' : food.name;
+              return (
+                <g key={`l${food.id}`} transform={`translate(${tx} ${ty}) rotate(${mid})`}>
+                  <text
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fontFamily="Geist, system-ui, sans-serif"
+                    fontSize={fontSize}
+                    fontWeight="700"
+                    fill="#fff"
+                    style={{ textShadow: '0 1px 2px rgba(0,0,0,0.35)', letterSpacing: '0.01em' }}
+                  >
+                    {label}
+                  </text>
+                </g>
+              );
+            })}
+          </motion.g>
+
+          {/* center hub - small white dot */}
+          <circle cx={CX} cy={CY} r={R_HUB * 0.42} fill="#ffffff" />
+          <circle cx={CX} cy={CY} r={R_HUB * 0.42} fill="none" stroke="rgba(0,0,0,0.18)" strokeWidth="1" />
+
+          {/* pointer - classic triangle */}
+          <g style={{ filter: 'drop-shadow(0 3px 4px rgba(0,0,0,0.25))' }}>
+            <path
+              d={`M ${CX - 14} ${CY - R_OUTER + 6} L ${CX + 14} ${CY - R_OUTER + 6} L ${CX} ${CY - R_OUTER + 32} Z`}
+              fill="oklch(0.56 0.17 42)"
+            />
+            <path
+              d={`M ${CX - 14} ${CY - R_OUTER + 6} L ${CX + 14} ${CY - R_OUTER + 6} L ${CX} ${CY - R_OUTER + 32} Z`}
+              fill="none"
+              stroke="rgba(255,255,255,0.6)"
+              strokeWidth="1"
+            />
+          </g>
+        </svg>
       </div>
 
-      {/* Spin button */}
+      {/* spin button */}
       <motion.button
         onClick={spin}
         disabled={isSpinning}
-        whileTap={{ scale: 0.95 }}
+        whileTap={{ scale: 0.98 }}
         className={clsx(
-          'px-12 py-4 rounded-2xl text-lg font-bold tracking-wide',
-          'shadow-lg transition-all',
-          'bg-[var(--tg-theme-button-color,#6c5ce7)]',
-          'text-[var(--tg-theme-button-text-color,#fff)]',
-          'shadow-[var(--tg-theme-button-color,#6c5ce7)]/30',
-          isSpinning && 'opacity-50 scale-100'
+          'flex items-center gap-2.5 px-10 py-4 rounded-[22px]',
+          'text-[17px] font-bold uppercase tracking-[0.08em]',
+          'transition-all',
+          isSpinning
+            ? 'bg-surface-alt text-muted shadow-none'
+            : 'text-white'
         )}
+        style={
+          isSpinning
+            ? undefined
+            : {
+                background:
+                  'linear-gradient(180deg, oklch(0.68 0.18 55), oklch(0.56 0.17 42))',
+                boxShadow:
+                  '0 12px 30px oklch(0.68 0.18 55 / 0.4), 0 2px 0 oklch(0.56 0.17 42)',
+              }
+        }
       >
-        {isSpinning ? 'Spinning...' : 'SPIN!'}
+        {isSpinning ? (
+          <>
+            <svg width="18" height="18" viewBox="0 0 24 24" className="animate-[spin_1s_linear_infinite]">
+              <circle
+                cx="12"
+                cy="12"
+                r="9"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeDasharray="14 28"
+                strokeLinecap="round"
+              />
+            </svg>
+            Spinning…
+          </>
+        ) : (
+          <>
+            Spin the wheel
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2 2-6Z" />
+            </svg>
+          </>
+        )}
       </motion.button>
     </div>
   );
