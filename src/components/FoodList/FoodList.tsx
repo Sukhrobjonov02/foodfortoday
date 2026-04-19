@@ -1,17 +1,15 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { Pizza, Sparkles, Plus } from 'lucide-react';
+import { Pizza, Sparkles } from 'lucide-react';
 import type { FoodItem as FoodItemType } from '../../types';
-import { AddFoodForm } from './AddFoodForm';
 import { FoodItem } from './FoodItem';
 
 interface FoodListProps {
   foods: FoodItemType[];
-  onAdd: (name: string) => Promise<void>;
   onRemove: (id: string) => void;
   onUpdate: (id: string, name: string) => Promise<void>;
 }
 
-function EmptyState({ onFocus }: { onFocus: () => void }) {
+function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center text-center gap-[14px] px-6 py-16">
       <div className="relative grid place-items-center w-[88px] h-[88px] rounded-[28px] bg-gradient-to-br from-surface to-surface-alt border border-border shadow-[0_10px_30px_rgba(0,0,0,0.06)]">
@@ -24,24 +22,17 @@ function EmptyState({ onFocus }: { onFocus: () => void }) {
         Your menu is empty
       </h2>
       <p className="text-sm text-muted max-w-[240px] leading-snug">
-        Add a few dishes you love — we'll help you decide what to eat today.
+        Type a dish in the input below and hit <span className="font-semibold text-primary">+</span> to get started.
       </p>
-      <button
-        onClick={onFocus}
-        className="mt-2 flex items-center gap-1.5 px-5 py-3 rounded-2xl bg-primary text-white text-[15px] font-semibold shadow-[0_8px_22px_oklch(0.68_0.18_55/0.35)] active:scale-[0.97] transition-transform"
-      >
-        <Plus size={16} strokeWidth={2.2} />
-        Add a dish
-      </button>
     </div>
   );
 }
 
-export function FoodList({ foods, onAdd, onRemove, onUpdate }: FoodListProps) {
+export function FoodList({ foods, onRemove, onUpdate }: FoodListProps) {
   const existingNames = foods.map((f) => f.name);
 
   return (
-    <div className="relative">
+    <div>
       <div className="px-5 pt-[14px] pb-2">
         <div className="flex items-baseline gap-2.5">
           <h1 className="text-[32px] font-bold tracking-[-0.03em] text-ink">
@@ -60,15 +51,9 @@ export function FoodList({ foods, onAdd, onRemove, onUpdate }: FoodListProps) {
         </p>
       </div>
 
-      <div
-        className="px-4 pt-2 overflow-y-auto"
-        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 180px)' }}
-      >
+      <div className="px-4 pt-2 pb-6">
         {foods.length === 0 ? (
-          <EmptyState onFocus={() => {
-            const input = document.getElementById('inline-composer-input') as HTMLInputElement | null;
-            input?.focus();
-          }} />
+          <EmptyState />
         ) : (
           <AnimatePresence mode="popLayout">
             {foods.map((food, i) => (
@@ -92,8 +77,6 @@ export function FoodList({ foods, onAdd, onRemove, onUpdate }: FoodListProps) {
           </AnimatePresence>
         )}
       </div>
-
-      <AddFoodForm onAdd={onAdd} existingNames={existingNames} />
     </div>
   );
 }

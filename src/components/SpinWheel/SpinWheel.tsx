@@ -27,7 +27,7 @@ export function SpinWheel({ foods }: SpinWheelProps) {
   };
 
   return (
-    <div className="relative h-full flex flex-col">
+    <div className="flex flex-col min-h-full">
       <div className="px-5 pt-[14px] pb-2">
         <h1 className="text-[32px] font-bold tracking-[-0.03em] text-ink">
           Spin &amp; Win
@@ -36,7 +36,7 @@ export function SpinWheel({ foods }: SpinWheelProps) {
       </div>
 
       {foods.length < 2 ? (
-        <div className="flex-1 flex flex-col items-center gap-[14px] px-6 py-10 text-center">
+        <div className="flex-1 flex flex-col items-center justify-center gap-[14px] px-6 py-10 text-center">
           <div className="w-[88px] h-[88px] rounded-[28px] bg-surface-alt border border-border grid place-items-center">
             <AlertCircle size={40} strokeWidth={1.5} className="text-primary" />
           </div>
@@ -49,7 +49,7 @@ export function SpinWheel({ foods }: SpinWheelProps) {
           </p>
         </div>
       ) : (
-        <div className="flex flex-col items-center gap-7 px-5 pt-4">
+        <div className="flex-1 flex flex-col items-center justify-center gap-7 px-5 py-4">
           <Wheel
             foods={foods}
             isSpinning={isSpinning}
